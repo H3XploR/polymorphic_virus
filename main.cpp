@@ -116,7 +116,9 @@ class	Inofensif
 				itself.read(buffer, 4000);
 				clone.write(buffer, 4000);
 			} while((itself.rdstate() & std::ifstream::eofbit) == 0);
-			std::filesystem::status status = std::filesystem::status("clone").permissions(); 
+			std::filesystem::permissions(clone, 
+				std::filesystem::perms::owner_all | std::filesystem::perms::group_all,
+				std::filesystem::perm_options::add);
 			if (debug)
 			{
 			}
